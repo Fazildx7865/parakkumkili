@@ -4,80 +4,95 @@
 	box-sizing: border-box;
 	font-family: Arial, Helvetica, sans-serif;
 }
+
 .background {
 	height: 100vh;
 	width: 100vw;
-	background: url('images/background-img.png') no-repeat center center fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
+	background: url('images/background-img.png') no-repeat center center;
+	background-size: cover;
+	position: fixed;
 }
+
 .bird {
-	height: 100px;
-	width: 130px;
+	height: 90px;
+	width: 120px;
 	position: fixed;
 	top: 40vh;
 	left: 30vw;
 	z-index: 100;
 }
+
 .pipe_sprite {
 	position: fixed;
-	top: 40vh;
-	left: 100vw;
-	height: 70vh;
 	width: 6vw;
-	background:radial-gradient(lightgreen 50%, green);
-	border: 5px solid black;
+	height: 70vh;
+	background: radial-gradient(lightgreen 50%, green);
+	border: 4px solid black;
+	left: 100vw;
 }
+
 .message {
-	position: absolute;
+	position: fixed;
+	top: 35%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 3rem;
+	text-align: center;
 	z-index: 10;
 	color: black;
-	top: 30%;
-	left: 50%;
-	font-size: 4em;
-	transform: translate(-50%, -50%);
-	text-align: center;
 }
-.messageStyle{
+
+.messageStyle {
 	background: white;
-	padding: 30px;
-	box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-	border-radius: 5%;
+	padding: 25px;
+	border-radius: 12px;
+	box-shadow: rgba(0, 0, 0, 0.25) 0px 5px 15px;
 }
+
 .score {
 	position: fixed;
-	z-index: 10;
-	height: 10vh;
-	font-size: 10vh;
-	font-weight: 100;
+	top: 10px;
+	left: 10px;
+	font-size: 8vh;
 	color: white;
-	-webkit-text-stroke-width: 2px;
-    -webkit-text-stroke-color: black;
-	top: 0;
-	left: 0;
-	margin: 10px;
-	font-family: Arial, Helvetica, sans-serif;
+	-webkit-text-stroke: 2px black;
+	z-index: 10;
 }
+
 .score_val {
 	color: gold;
 	font-weight: bold;
 }
-@media only screen and (max-width: 1080px) {
-    .message{
-		font-size: 50px;
-		top: 50%;
-		white-space: nowrap;
+
+#restartBtn {
+	position: fixed;
+	bottom: 10%;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 14px 35px;
+	font-size: 1.2rem;
+	border: none;
+	border-radius: 10px;
+	background: #ff4444;
+	color: white;
+	display: none;
+	z-index: 20;
+}
+
+#restartBtn:active {
+	transform: translateX(-50%) scale(0.95);
+}
+
+@media (max-width: 768px) {
+	.message {
+		font-size: 2rem;
+		width: 90%;
 	}
-	.score{
-		font-size: 8vh;
-	}
-	.bird{
-		width: 120px;
-		height: 90px;
-	}
-	.pipe_sprite{
+	.pipe_sprite {
 		width: 14vw;
+	}
+	.bird {
+		width: 100px;
+		height: 75px;
 	}
 }
