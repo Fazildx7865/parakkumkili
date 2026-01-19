@@ -3,21 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="images/favicon.ico"/>
-    <title>Flappy Bird Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <title>Flappy Bird</title>
+
+    <link rel="icon" href="images/favicon.ico">
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
+
 <body>
     <div class="background"></div>
-    <img src="images/Bird.png" alt="bird-img" class="bird" id="bird-1">
-    <div class="message">
-        Appo engane thodangalle... <p><span style="color: red;">&uarr;</span> ArrowUp to pokkal Enter to Thodangal</p>
+
+    <img src="images/Bird.png" class="bird" id="bird-1">
+
+    <div class="message messageStyle" id="message">
+        <p>Tap Screen or Press ↑</p>
+        <p>Press Enter to Start</p>
     </div>
+
+    <button id="restartBtn">Restart</button>
+
     <div class="score">
         <span class="score_title"></span>
-        <span class="score_val"></span>
+        <span class="score_val">0</span>
     </div>
 </body>
 </html>
