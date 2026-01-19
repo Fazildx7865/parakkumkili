@@ -1,3 +1,6 @@
+document.body.style.overflow = 'hidden';
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
 let move_speed = 3;
 let gravity = 0.5;
 let bird_dy = 0;
@@ -5,142 +8,203 @@ let bird_dy = 0;
 let bird = document.querySelector('.bird');
 let img = document.getElementById('bird-1');
 let message = document.getElementById('message');
+
+let startBtn = document.getElementById('startBtn');
+let pauseBtn = document.getElementById('pauseBtn');
 let restartBtn = document.getElementById('restartBtn');
+
 let score_val = document.querySelector('.score_val');
 let score_title = document.querySelector('.score_title');
+let highScoreVal = document.getElementById('highScoreVal');
 
 let sound_point = new Audio('sounds effect/point.mp3');
 let sound_die = new Audio('sounds effect/die.mp3');
 
 let game_state = 'Start';
-img.style.display = 'none';
+let isCountingDown = false;
 
-/* ---------- INPUT ---------- */
+/* High Score */
+let highScore = localStorage.getItem('highScore') || 0;
+highScoreVal.innerText = highScore;
 
+/* INPUT */
 function flap() {
-	if (game_state !== 'Play') return;
+	if (game_state !== 'Play' || isCountingDown) return;
 	bird_dy = -7.6;
 	img.src = 'images/Bird-2.png';
 	setTimeout(() => img.src = 'images/Bird.png', 150);
 }
 
 document.addEventListener('keydown', e => {
-	if (e.key === 'Enter' && game_state !== 'Play') {
-		startGame();
-	}
-	if (e.key === 'ArrowUp' || e.key === ' ') {
-		flap();
+	if ((e.key === 'ArrowUp' || e.key === ' ') ) flap();
+
+	if ((e.key === 'p' || e.key === 'P') &&
+	    (game_state === 'Play' || game_state === 'Pause')) {
+		togglePause();
 	}
 });
 
 document.addEventListener('touchstart', flap);
 document.addEventListener('mousedown', flap);
 
-/* ---------- GAME ---------- */
+/* Countdown */
+function startCountdown(callback) {
+	if (isCountingDown) return;
+	isCountingDown = true;
 
+	let count = 3;
+	message.style.display = 'block';
+	message.classList.add('messageStyle');
+
+	let timer = setInterval(() => {
+		if (count > 0) {
+			message.innerHTML = `<span class="countdown">${count}</span>`;
+			count--;
+		} else {
+			clearInterval(timer);
+			message.innerHTML = 'GO!';
+			setTimeout(() => {
+				message.style.display = 'none';
+				isCountingDown = false;
+				callback();
+			}, 500);
+		}
+	}, 1000);
+}
+
+/* Buttons */
+startBtn.addEventListener('click', () => {
+	startBtn.style.display = 'none';
+	startCountdown(startGame);
+});
+
+restartBtn.addEventListener('click', () => {
+	restartBtn.style.display = 'none';
+	startCountdown(startGame);
+});
+
+pauseBtn.addEventListener('click', togglePause);
+
+/* Game */
 function startGame() {
 	document.querySelectorAll('.pipe_sprite').forEach(p => p.remove());
 
-	img.style.display = 'block';
-	bird.style.top = '40vh';
+	bird.style.display = 'block';
+	bird.style.top = '40%';
 	bird_dy = 0;
 
-	score_val.innerHTML = '0';
-	score_title.innerHTML = 'Score : ';
+	score_val.innerText = '0';
+	score_title.innerText = 'Score:';
 
 	message.style.display = 'none';
+	pauseBtn.style.display = 'block';
 	restartBtn.style.display = 'none';
 
 	game_state = 'Play';
 	play();
 }
 
+function togglePause() {
+	if (game_state === 'Play') {
+		game_state = 'Pause';
+		message.style.display = 'block';
+		message.innerHTML = 'Paused';
+		pauseBtn.innerText = 'Resume';
+	} else if (game_state === 'Pause') {
+		game_state = 'Play';
+		message.style.display = 'none';
+		pauseBtn.innerText = 'Pause';
+		play();
+	}
+}
+
 function play() {
 	let bird_props = bird.getBoundingClientRect();
-	let background = document.querySelector('.background').getBoundingClientRect();
 
-	function apply_gravity() {
+	function gravityLoop() {
 		if (game_state !== 'Play') return;
 
 		bird_dy += gravity;
 		bird.style.top = bird_props.top + bird_dy + 'px';
 		bird_props = bird.getBoundingClientRect();
 
-		if (bird_props.top <= 0 || bird_props.bottom >= background.bottom) {
+		if (bird_props.top <= 0 || bird_props.bottom >= window.innerHeight) {
 			endGame();
 			return;
 		}
-		requestAnimationFrame(apply_gravity);
+		requestAnimationFrame(gravityLoop);
 	}
 
-	function move_pipes() {
+	function pipeLoop() {
 		if (game_state !== 'Play') return;
 
 		document.querySelectorAll('.pipe_sprite').forEach(pipe => {
-			let pipe_props = pipe.getBoundingClientRect();
+			let p = pipe.getBoundingClientRect();
 
-			if (pipe_props.right <= 0) pipe.remove();
+			if (p.right <= 0) pipe.remove();
 
 			if (
-				bird_props.left < pipe_props.right &&
-				bird_props.right > pipe_props.left &&
-				bird_props.top < pipe_props.bottom &&
-				bird_props.bottom > pipe_props.top
-			) {
-				endGame();
-			}
+				bird_props.left < p.right &&
+				bird_props.right > p.left &&
+				bird_props.top < p.bottom &&
+				bird_props.bottom > p.top
+			) endGame();
 
-			if (pipe_props.right < bird_props.left && !pipe.scored) {
-				score_val.innerHTML = +score_val.innerHTML + 1;
+			if (p.right < bird_props.left && !pipe.scored) {
+				let current = +score_val.innerText + 1;
+				score_val.innerText = current;
+
+				if (current > highScore) {
+					highScore = current;
+					localStorage.setItem('highScore', highScore);
+					highScoreVal.innerText = highScore;
+				}
 				pipe.scored = true;
 				sound_point.play();
 			}
 
-			pipe.style.left = pipe_props.left - move_speed + 'px';
+			pipe.style.left = p.left - move_speed + 'px';
 		});
 
-		requestAnimationFrame(move_pipes);
+		requestAnimationFrame(pipeLoop);
 	}
 
 	let pipe_gap = 35;
-	let pipe_separation = 0;
+	let pipe_sep = 0;
 
-	function create_pipe() {
+	function createPipe() {
 		if (game_state !== 'Play') return;
 
-		if (pipe_separation > 115) {
-			pipe_separation = 0;
+		if (pipe_sep > 115) {
+			pipe_sep = 0;
+			let pos = Math.floor(Math.random() * 40) + 10;
 
-			let pipe_pos = Math.floor(Math.random() * 40) + 10;
+			let top = document.createElement('div');
+			top.className = 'pipe_sprite';
+			top.style.top = pos - 70 + '%';
 
-			let top_pipe = document.createElement('div');
-			top_pipe.className = 'pipe_sprite';
-			top_pipe.style.top = pipe_pos - 70 + 'vh';
+			let bottom = document.createElement('div');
+			bottom.className = 'pipe_sprite';
+			bottom.style.top = pos + pipe_gap + '%';
 
-			let bottom_pipe = document.createElement('div');
-			bottom_pipe.className = 'pipe_sprite';
-			bottom_pipe.style.top = pipe_pos + pipe_gap + 'vh';
-
-			document.body.appendChild(top_pipe);
-			document.body.appendChild(bottom_pipe);
+			document.body.appendChild(top);
+			document.body.appendChild(bottom);
 		}
-		pipe_separation++;
-		requestAnimationFrame(create_pipe);
+		pipe_sep++;
+		requestAnimationFrame(createPipe);
 	}
 
-	apply_gravity();
-	move_pipes();
-	create_pipe();
+	gravityLoop();
+	pipeLoop();
+	createPipe();
 }
 
 function endGame() {
 	game_state = 'End';
 	message.style.display = 'block';
-	message.innerHTML = 'Game Over';
-	message.classList.add('messageStyle');
+	message.innerHTML = `Game Over<br>Score: ${score_val.innerText}<br>Best: ${highScore}`;
 	restartBtn.style.display = 'block';
-	img.style.display = 'none';
+	pauseBtn.style.display = 'none';
+	bird.style.display = 'none';
 	sound_die.play();
 }
-
-restartBtn.addEventListener('click', () => location.reload());
