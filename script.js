@@ -202,7 +202,8 @@ function play() {
 function endGame() {
 	game_state = 'End';
 	message.style.display = 'block';
-	message.innerHTML = `Game Over<br>Score: ${score_val.innerText}<br>Best: ${highScore}`;
+	message.innerHTML = `
+<b>പോടാ പോടാ... തരത്തിൽ പോയി കളിക്കടാ</b><br>Score: ${score_val.innerText}<br>Best: ${highScore}`;
 	restartBtn.style.display = 'block';
 	pauseBtn.style.display = 'none';
 	bird.style.display = 'none';
